@@ -62,11 +62,6 @@ export const prisma = new PrismaClient({ adapter });
 
 ### 4. **package.json**
 Beberapa script **ditambahkan/dimodifikasi** untuk fungsi build vercel & seed database.
-   - Vercel: `build` pakai tsdown, `start` untuk cek hasil build. `postinstall` untuk memastikan prisma di generate setelah build (double check di vercel). 
-   - Turso: 
-     - generate file `baseline.sql` (skema) -> masukkan ke database turso.
-     - Seeding data tabel user ke database turso.
-     - Test dengan run `bun dev:turso`
 ```json
 {
   "scripts": {
@@ -81,43 +76,15 @@ Beberapa script **ditambahkan/dimodifikasi** untuk fungsi build vercel & seed da
   },
 }
 ```
+Keterangan:
+- Vercel: `build` pakai tsdown, `start` untuk cek hasil build. `postinstall` untuk memastikan prisma di generate setelah build (double check di vercel). 
+- Turso: 
+  - generate file `baseline.sql` (skema) -> masukkan ke database turso.
+  - Seeding data tabel user ke database turso.
+  - `bun dev:turso` untuk test koneksi web dev dengan seeder. 
 > ! Tambahkan script yang tidak ada, modifikasi script yang berbeda. JANGAN DITIMPA ! 
 
-### 5. **prisma/migrate.ts**
-File untuk menjalankan query `baseline.sql` ke turdo database.
-```ts
-import { prisma } from "./db";
-import { readFileSync } from "fs";
-import { join } from "path";
-
-const sql = readFileSync(join(__dirname, "../baseline.sql"), "utf-8");
-
-const statements = sql
-  .split(";")
-  .map(s => s.trim())
-  .filter(s => s.length > 0);
-
-for (const statement of statements) {
-  await prisma.$executeRawUnsafe(statement);
-}
-
-await prisma.$disconnect();
-```
-
-Setelah setup file untuk database, kita akan memasukkan data ke Turso. 
-Jalankan:
-```bash
-cd apps/backend
-bun prod:sql # generate file baseline.sql
-bun prod:check-env # cek dulu DATABASE_URL sudah pakai url Turso. Jika sudah, lanjut!
-bun prod:migrate # run query dari file baseline.sql. berisi skema tabel
-bun prod:seed # mengisi data ke dalam tabel
-```
-> [?] migrate.ts sebenarnya fungsi untuk menjalankan query, anda dapat menggunakan kode ini jiga ingin mengubah skema database (tinggal edit file sql nya).
-
-Lihat di web turso, bukan proyek, lihat halaman `Edit Data` berisi tabel dan datanya.
-
-### 6. **src/index.ts**
+### 5. **src/index.ts**
 edit/tambah beberapa bagian kode (jangan ada duplikasi!):
 
 ```ts
@@ -196,6 +163,42 @@ Beberapa modifikasi:
 - gunakan API_KEY sebagai param untuk akses route `/users` (*protect data in database*).
 - Console log dynamic mengikuti variabel & tidak tampil di production.
 - export default app untuk Elysia dibaca oleh Vercel.
+
+### 6. **prisma/migrate.ts**
+File untuk menjalankan query `baseline.sql` ke turdo database.
+```ts
+import { prisma } from "./db";
+import { readFileSync } from "fs";
+import { join } from "path";
+
+const sql = readFileSync(join(__dirname, "../baseline.sql"), "utf-8");
+
+const statements = sql
+  .split(";")
+  .map(s => s.trim())
+  .filter(s => s.length > 0);
+
+for (const statement of statements) {
+  await prisma.$executeRawUnsafe(statement);
+}
+
+await prisma.$disconnect();
+```
+> [?] migrate.ts sebenarnya fungsi untuk menjalankan query, anda dapat menggunakan kode ini jiga ingin mengubah skema database (tinggal edit file sql nya).
+
+Setelah setup file untuk database, kita akan memasukkan data ke Turso. 
+
+**!!! Jalankan:**
+```bash
+cd apps/backend
+bun prod:sql # generate file baseline.sql
+bun prod:check-env # cek dulu DATABASE_URL sudah pakai url Turso. Jika sudah, lanjut!
+bun prod:migrate # run query dari file baseline.sql. berisi skema tabel
+bun prod:seed # mengisi data ke dalam tabel
+bun dev:turso # buka route `/users?key=learn`, jika data user tampil, koneksi turso berhasil.
+```
+
+Lihat di web turso, bukan proyek, lihat halaman `Edit Data` berisi tabel dan datanya.
 
 ### 7. **.env.**, **.env.development**
 Buat env utama dan env terpisah untuk development:
