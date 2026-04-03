@@ -162,7 +162,7 @@ server {
 ```bash
 # Jika pakai window wsl, hapus file bun.lock, lalu jalankan `bun install --lockfile-only` di WSL (menghasilkan file bun.lock). supaya path di file lock pakai forward slash "/", bukan backslash "\".
 
-# test dulu development (jika di wsl pakai )
+# test dulu development
 bun dev
 
 # jika dev berhasil, sekarang test Build & Start
