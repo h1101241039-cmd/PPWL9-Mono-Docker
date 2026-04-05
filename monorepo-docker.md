@@ -179,6 +179,7 @@ server {
 ```
 
 ## 2. CLI
+Untuk pengguna WSL (handle issue):
 ```bash
 # di wsl, untuk mengecek jaringan aman, jalankan: (jika pakai debian/ubuntu)
 sudo apt update
@@ -189,13 +190,17 @@ sudo apt update -o Acquire::ForceIPv4=true
 # | All packages are up to date.
 # Jika dapat speed 5,250 kB/s tandanya sudah stabil
 
+# Untuk struktur file dependency berpindah dari Windows ke WSL (Linux)
 # Hapus sisa installasi dari windows path
 # Hapus node_modules secara rekursif
 find . -name "node_modules" -type d -prune -exec rm -rf '{}' +
 
 # Hapus file lock Bun
 rm -f bun.lock
+```
 
+Run ini untuk test hasil:
+```bash
 # install & test dulu development
 bun install
 bun dev
@@ -213,7 +218,8 @@ docker compose up
 # untuk menutup container & membersihkan network
 docker compose down
 
-# ---- Build Cache not changed -> do "Hard Reset"
+# ---- Issue/Error Handler ---
+# --- Build Cache not changed -> do "Hard Reset"
 # Jika dapat error ketika compose up, lalu kamu buat perubahan tapi ketika `compose up` kode tidak berubah, coba build tanpa cache.
 docker compose build --no-cache
 # tambahkan --build-arg <detail_arg> jika error Integrity check failed (asdos check berhasil build di 98.0s)
