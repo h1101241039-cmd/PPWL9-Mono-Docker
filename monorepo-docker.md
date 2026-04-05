@@ -109,7 +109,7 @@ CMD ["bun", "run", "src/index.ts"]
 ```
 
 ### 1.4. **apps/backend/prisma/db.ts**
-Modifikasi path file database agar realatif dengan file kode, jika tidak didefinisi di env.
+Modifikasi path db file. jika tidak didefinisi di env, fallback ke path absolute (development)
 ```ts
 import { PrismaClient } from "../src/generated/prisma/client";
 import { PrismaLibSql } from "@prisma/adapter-libsql";
